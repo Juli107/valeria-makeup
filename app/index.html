@@ -62,9 +62,9 @@ p{margin:0}
 .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--beige);color:var(--ash);font-size:10.5px;font-weight:600;display:grid;place-items:center;padding:0 5px}
 .badge[data-n="0"]{display:none}
 
-.view{display:none;animation:in .35s ease}
+.view{display:none;animation:in .25s ease}
 .view.on{display:block}
-@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes in{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.view{animation:none}*{transition:none!important}}
 .pad{padding-left:var(--gl);padding-right:var(--gr)}
 .sec{padding-block:36px}
@@ -129,9 +129,10 @@ p{margin:0}
 .bone .chip.on{background:var(--ash);color:var(--bone);border-color:var(--ash)}
 
 /* portfolio */
-.masonry{columns:2;column-gap:8px;margin-top:18px}
-.masonry button{display:block;width:100%;margin-bottom:8px;break-inside:avoid;border-radius:12px;overflow:hidden;position:relative}
-.masonry img{width:100%;height:auto;transition:transform .5s}
+.masonry{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;align-items:start}
+.masonry .col{display:grid;gap:8px;min-width:0}
+.masonry button{display:block;width:100%;border-radius:12px;overflow:hidden;position:relative;background:var(--ash-3)}
+.masonry img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .masonry button:hover img{transform:scale(1.03)}
 .masonry .tag{position:absolute;left:8px;bottom:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:rgba(20,19,18,.72);padding:4px 8px;border-radius:999px;color:var(--bone)}
 
@@ -523,6 +524,7 @@ const PORTFOLIO=[
  ['valu-trabajando-1','detras','Valu trabajando'],['proceso-delineado','detras','Delineado'],['proceso-espejo','detras','Peinado en camarín'],
  ['proceso-novia-rubia','detras','Equipo en acción'],['proceso-spray','detras','Fijación final'],['valu-trabajando-2','detras','Últimos detalles'],['detras-kit','detras','El kit de Valu']
 ];
+const SIZES={"brochas-detalle":[900,600],"brochas-set":[900,695],"detras-kit":[800,1200],"dia-brindis":[900,600],"dia-madre-vestido":[801,1200],"evento-blanco-sonrisa":[757,1200],"hero-retrato":[600,1065],"novia-callas":[600,750],"novia-calle":[900,600],"novia-cortinas":[801,1200],"novia-estudio":[675,1200],"novia-hombros":[900,1200],"novia-labial-rojo-2":[800,1200],"novia-labial-rojo":[675,1200],"novia-labios-rojos":[675,1200],"novia-manos":[900,600],"novia-ondas":[900,1200],"novia-parque":[800,1200],"novia-perlas":[800,1200],"novia-recogido":[675,1200],"novia-velo-mirada":[800,1200],"novia-velo":[885,1200],"proceso-delineado":[801,1200],"proceso-espejo":[799,1200],"proceso-novia-rubia":[800,1200],"proceso-paleta":[900,600],"proceso-spray":[900,600],"quince-estudio":[900,1139],"quince-rosa":[900,1166],"quince-tiara":[800,1200],"quince-trenza":[900,1139],"ramo1":[900,600],"ramo2":[900,600],"recogido-trenzas":[811,1200],"semirecogido-ondas":[840,1200],"semirecogido-perfil":[864,1184],"semirecogido-tocado":[861,1200],"social-batas":[801,1200],"social-sonrisa":[900,600],"valu-trabajando-1":[801,1200],"valu-trabajando-2":[801,1200],"valu-trabajando-3":[900,600]};
 const PF_CATS=[['todos','Todos'],['novias','Novias'],['quince','Quinceañeras'],['peinados','Peinados'],['social','Social'],['detras','Detrás de escena']];
 
 const SERVICES=[
@@ -598,7 +600,10 @@ $('#pfChips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(
 function renderPF(){
   pfList=PORTFOLIO.filter(p=>pfCat==='todos'||p[1]===pfCat);
   const lab=Object.fromEntries(PF_CATS);
-  $('#pfGrid').innerHTML=pfList.map((p,i)=>`<button data-i="${i}" aria-label="Ver ${p[2]}"><img src="img/${p[0]}.jpg" alt="${p[2]}" loading="lazy">${pfCat==='todos'?`<span class="tag">${lab[p[1]]}</span>`:''}</button>`).join('');
+  const cols=[[],[]],h=[0,0];
+  pfList.forEach((p,i)=>{const [w,hh]=SIZES[p[0]]||[3,4];const c=h[0]<=h[1]?0:1;h[c]+=hh/w;
+    cols[c].push(`<button data-i="${i}" aria-label="Ver ${p[2]}" style="aspect-ratio:${w}/${hh}"><img src="img/${p[0]}.jpg" alt="${p[2]}" width="${w}" height="${hh}" ${i>5?'loading="lazy"':''} decoding="async">${pfCat==='todos'?`<span class="tag">${lab[p[1]]}</span>`:''}</button>`)});
+  $('#pfGrid').innerHTML=cols.map(c=>`<div class="col">${c.join('')}</div>`).join('');
 }
 renderPF();
 let lbI=0;
